@@ -280,13 +280,12 @@ async function main() {
             try {
               coldResult = await client.runAudit({ url, strategy: dev, mode: "cold", pass: 1 });
             } catch (apiErr) {
-              if (apiErr.message?.includes("429") || apiErr.message?.includes("Лимит") || apiErr.message?.includes("Quota")) {
-                console.log(`\x1b[33m[429 Quota]\x1b[0m Облачный Google API временно перегружен для вашего IP.`);
-                console.log(`\x1b[32m▶ Автоматическое переключение на локальный Lighthouse 13.5 (без лимитов)...\x1b[0m`);
-                coldResult = await LocalRunner.runAudit({ url, device: dev, mode: "cold" });
-              } else {
-                throw apiErr;
-              }
+              const reason = (apiErr.message?.includes("429") || apiErr.message?.includes("Лимит") || apiErr.message?.includes("Quota"))
+                ? "Лимит запросов к Google API (429)"
+                : `Облачный Google API недоступен на этом ПК (${apiErr.message})`;
+              console.log(`\x1b[33m[!]\x1b[0m ${reason}`);
+              console.log(`\x1b[32m▶ Автоматическое переключение на локальный Lighthouse 13.5 (работает без серверов Google)...\x1b[0m`);
+              coldResult = await LocalRunner.runAudit({ url, device: dev, mode: "cold" });
             }
           }
           if (coldResult && coldResult.scores.performance !== null) {
@@ -310,13 +309,12 @@ async function main() {
             try {
               hotResult = await client.runAudit({ url, strategy: dev, mode: "hot", pass: 1 });
             } catch (apiErr) {
-              if (apiErr.message?.includes("429") || apiErr.message?.includes("Лимит") || apiErr.message?.includes("Quota")) {
-                console.log(`\x1b[33m[429 Quota]\x1b[0m Облачный Google API временно перегружен для вашего IP.`);
-                console.log(`\x1b[32m▶ Автоматическое переключение на локальный Lighthouse 13.5 (без лимитов)...\x1b[0m`);
-                hotResult = await LocalRunner.runAudit({ url, device: dev, mode: "hot" });
-              } else {
-                throw apiErr;
-              }
+              const reason = (apiErr.message?.includes("429") || apiErr.message?.includes("Лимит") || apiErr.message?.includes("Quota"))
+                ? "Лимит запросов к Google API (429)"
+                : `Облачный Google API недоступен на этом ПК (${apiErr.message})`;
+              console.log(`\x1b[33m[!]\x1b[0m ${reason}`);
+              console.log(`\x1b[32m▶ Автоматическое переключение на локальный Lighthouse 13.5 (работает без серверов Google)...\x1b[0m`);
+              hotResult = await LocalRunner.runAudit({ url, device: dev, mode: "hot" });
             }
           }
           if (hotResult && hotResult.scores.performance !== null) {

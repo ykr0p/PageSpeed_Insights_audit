@@ -112,11 +112,12 @@ export class PsiClient {
         responseData = await res.json();
         break;
       } catch (err) {
+        const errorDetail = err.cause?.message ? `${err.message} (${err.cause.message})` : err.message;
         if (attempt >= maxAttempts) {
-          throw err;
+          throw new Error(errorDetail);
         }
         const delay = attempt * 2000;
-        console.warn(`[PSI API] Ошибка запроса (${err.message}). Повтор через ${delay}ms...`);
+        console.warn(`[PSI API] Ошибка запроса (${errorDetail}). Повтор через ${delay}ms...`);
         await new Promise((r) => setTimeout(r, delay));
       }
     }
