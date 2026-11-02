@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workdo Performance Case Study | Презентация</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #151d30;
+      --card-border: #23314d;
+      --primary: #38bdf8;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+    /* Top Bar */
+    .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); border-bottom: 1px solid var(--card-border); z-index: 10; }
+    .logo { font-size: 16px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+    .slide-indicator { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+    .nav-controls { display: flex; gap: 8px; }
+    .btn { background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .btn:hover { background: #1e293b; border-color: var(--primary); color: #fff; }
+    .btn-primary { background: var(--primary); color: #0b0f19; border: none; }
+    .btn-primary:hover { background: #7dd3fc; }
+
+    /* Progress Bar */
+    .progress-bar-container { height: 4px; background: var(--card-border); width: 100%; }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #38bdf8, #10b981); width: 0%; transition: width 0.3s ease; }
+
+    /* Presentation Container */
+    .deck-container { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 20px 40px; }
+    .slide { position: absolute; inset: 0; padding: 40px 60px; display: none; opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; overflow-y: auto; }
+    .slide.active { display: flex; flex-direction: column; opacity: 1; transform: translateY(0); }
+
+    /* Slide Typography */
+    .slide-subtitle { color: var(--primary); font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
+    .slide-title { font-size: 34px; font-weight: 800; color: #fff; margin-bottom: 24px; line-height: 1.2; }
+    .slide-desc { font-size: 16px; color: var(--text-muted); max-width: 900px; margin-bottom: 30px; line-height: 1.6; }
+
+    /* Grid & Cards */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 10px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 10px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 10px; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 22px; position: relative; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4); }
+    .card-highlight { border-color: rgba(56, 189, 248, 0.4); background: linear-gradient(180deg, rgba(56, 189, 248, 0.05) 0%, var(--card-bg) 100%); }
+
+    /* Before/After Badges */
+    .badge-red { background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700; padding: 3px 8px; border-radius: 4px; font-size: 12px; }
+
+    /* Big Metric Numbers */
+    .metric-hero { text-align: center; padding: 20px; }
+    .metric-value-huge { font-size: 56px; font-weight: 900; line-height: 1; margin: 10px 0; }
+    .metric-value-huge.red { color: var(--red); }
+    .metric-value-huge.green { color: var(--green); }
+    .metric-label-big { font-size: 14px; font-weight: 600; color: var(--text-muted); }
+
+    /* Code Blocks */
+    pre { background: #070a13; border: 1px solid var(--card-border); border-radius: 8px; padding: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; color: #7dd3fc; overflow-x: auto; margin: 10px 0; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { background: #0f172a; padding: 12px 16px; color: var(--text-muted); text-align: left; border-bottom: 1px solid var(--card-border); }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--card-border); }
+    tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+    /* Keyboard Hints */
+    .keyboard-hint { font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; align-items: center; }
+    .kbd { background: #1e293b; border: 1px solid #334155; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo">
+      <span>⚡</span> Workdo Core Web Vitals & PageSpeed Insights Case
+    </div>
+    <div class="slide-indicator">
+      Слайд <span id="currentSlideNum">1</span> из <span id="totalSlidesNum">14</span>
+    </div>
+    <div class="nav-controls">
+      <div class="keyboard-hint">
+        <span>Перелистывание: <span class="kbd">←</span> <span class="kbd">→</span> / <span class="kbd">Пробел</span></span>
+        <span>Полноэкранный: <span class="kbd">F</span></span>
+      </div>
+      <button class="btn" id="prevBtn" onclick="prevSlide()">◀ Назад</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextSlide()">Вперед ▶</button>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <!-- Slides Deck -->
+  <div class="deck-container">
+
+    <!-- Слайд 1: Титульный -->
+    <div class="slide active">
+      <div class="slide-subtitle">Кейс Архитектурной Оптимизации SaaS</div>
+      <h1 class="slide-title" style="font-size: 48px; max-width: 900px;">
+        Как вывести 83 страницы проекта из красной зоны в <span style="color: var(--green);">100% зелёную зону</span> Core Web Vitals
+      </h1>
+      <p class="slide-desc" style="font-size: 18px;">
+        Практический опыт оптимизации платформы <strong>Workdo</strong>: глубокий разбор серверных водопадов в SSR, сетевых задержек Rate Limiter, каскадных таймеров JavaScript, смещений верстки (CLS) и переход к стабильному <strong>100/100</strong> в Google Lighthouse.
+      </p>
+
+      <div class="grid-4" style="margin-top: 30px;">
+        <div class="card card-highlight">
+          <div class="metric-hero">
+            <div class="metric-label-big">Охвачено страниц</div>
+            <div class="metric-value-huge" style="color: var(--primary);">83</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Маркетинг, CRM, Авторизация</div>
+          </div>
+        </div>
+        <div class="card card-highlight">
+          <div class="metric-hero">
+            <div class="metric-label-big">Финальный Performance</div>
+            <div class="metric-value-huge green">100</div>
+            <div style="font-size: 12px; color: var(--green);">Все 83 страницы в зеленой зоне</div>
+          </div>
+        </div>
+        <div class="card card-highlight">
+          <div class="metric-hero">
+            <div class="metric-label-big">Средний LCP</div>
+            <div class="metric-value-huge green">413 <span style="font-size: 20px;">ms</span></div>
+            <div style="font-size: 12px; color: var(--text-muted);">Сокращение в 4.3 раза</div>
+          </div>
+        </div>
+        <div class="card card-highlight">
+          <div class="metric-hero">
+            <div class="metric-label-big">Cumulative Layout Shift</div>
+            <div class="metric-value-huge green">0.000</div>
+            <div style="font-size: 12px; color: var(--green);">Полное отсутствие сдвигов</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 2: Что такое Core Web Vitals -->
+    <div class="slide">
+      <div class="slide-subtitle">Метрики и стандарты</div>
+      <h2 class="slide-title">Что такое Core Web Vitals и почему они влияют на всё</h2>
+      <p class="slide-desc">
+        Google использует Core Web Vitals как прямой фактор ранжирования в поисковой выдаче и критерий качества пользовательского опыта (UX).
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div style="font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">LCP (Largest Contentful Paint)</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Время отрисовки самого крупного видимого элемента страницы (главный текст, баннер, карточка).</p>
+          <div class="badge-green">Норма: ≤ 2.5 секунды</div>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">CLS (Cumulative Layout Shift)</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Суммарный сдвиг разметки при дозагрузке шрифтов, баннеров, асинхронных блоков без фиксированной высоты.</p>
+          <div class="badge-green">Норма: ≤ 0.1000</div>
+        </div>
+
+        <div class="card">
+          <div style="font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 8px;">TBT / INP (Интерактивность)</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Время блокировки главного потока процессора долгими скриптами JS до отклика на клик пользователя.</p>
+          <div class="badge-green">Норма: TBT ≤ 200 ms | INP ≤ 200 ms</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 24px; border-left: 4px solid var(--primary);">
+        <strong style="color: #fff;">Дополнительные фундаментальные метрики:</strong>
+        <div style="display: flex; gap: 40px; margin-top: 10px; font-size: 14px;">
+          <div><strong>TTFB (Time to First Byte):</strong> Ответ сервера и старт ответа (норма ≤ 800 ms).</div>
+          <div><strong>FCP (First Contentful Paint):</strong> Первая видимая отрисовка пикселей (норма ≤ 1.8 с).</div>
+          <div><strong>Speed Index:</strong> Скорость визуального наполнения контентом.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 3: Cold vs Hot Запуски -->
+    <div class="slide">
+      <div class="slide-subtitle">Методология аудита</div>
+      <h2 class="slide-title">Cold (Холодный) vs Hot (Горячий) запуск: В чем разница?</h2>
+      <p class="slide-desc">
+        Замерять производительность только в одном режиме — классическая ошибка. Реальные пользователи делятся на две принципиально разные группы:
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="color: #fff;">❄️ Холодный запуск (Cold Run)</h3>
+            <span class="badge-red">Новый посетитель</span>
+          </div>
+          <ul style="font-size: 14px; line-height: 1.8; color: var(--text-muted); padding-left: 20px;">
+            <li>Кэш браузера полностью пуст (HTTP 200 на все файлы).</li>
+            <li>Выполняется полный DNS-lookup, TLS/TCP handshake.</li>
+            <li>Скачиваются все CSS-стили, шрифты WOFF2, JS-бандлы и картинки.</li>
+            <li>Пул соединений базы данных и серверный кэш могут быть «холодными».</li>
+            <li><strong>Как замеряем:</strong> принудительный сброс кэша браузера через CDP <code>Network.clearBrowserCache</code> или cache-buster параметры в PageSpeed API.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="color: #fff;">🔥 Горячий запуск (Hot Run)</h3>
+            <span class="badge-green">Повторный визит</span>
+          </div>
+          <ul style="font-size: 14px; line-height: 1.8; color: var(--text-muted); padding-left: 20px;">
+            <li>Статические ресурсы загружаются мгновенно из дискового/памятного кэша браузера (<code>from disk cache</code>, 304 Not Modified).</li>
+            <li>Keep-Alive соединение уже открыто.</li>
+            <li>Прогрет пул соединений Prisma / PostgreSQL.</li>
+            <li><strong>Что показывает:</strong> чистую производительность генерации данных, эффективность клиентского кэша и гидратации React.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 24px; background: rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.3);">
+        💡 <strong>Инсайт Workdo:</strong> В исходном коде горячий режим иногда был <em>медленнее</em> холодного из-за повторных вызовов rate-limiter Upstash и очередей запросов. Исправление серверной логики сделало горячий запуск в 2 раза быстрее холодного!
+      </div>
+    </div>
+
+    <!-- Слайд 4: Исходное состояние Workdo -->
+    <div class="slide">
+      <div class="slide-subtitle">Базовая линия (2026-09-25)</div>
+      <h2 class="slide-title">Исходная картина: 18 страниц в красной зоне</h2>
+      <p class="slide-desc">
+        Комплексный замер 83 страниц Workdo выявил тяжелые просадки на ключевых страницах CRM и публичных экранах:
+      </p>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Страница</th>
+              <th>Категория</th>
+              <th>Perf (Cold)</th>
+              <th>Perf (Hot)</th>
+              <th>LCP (было)</th>
+              <th>TBT / CLS (было)</th>
+              <th>Главный симптом</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>/security/salary</strong></td>
+              <td>CRM / Зарплата</td>
+              <td><span class="badge-red">47</span></td>
+              <td><span class="badge-red">47</span></td>
+              <td style="color: var(--red); font-weight: 700;">3 785 – 16 800 ms</td>
+              <td>TBT 1 042 ms</td>
+              <td>Зависание рендера на 16 секунд</td>
+            </tr>
+            <tr>
+              <td><strong>/security/incidents/[id]/edit</strong></td>
+              <td>CRM / Формы</td>
+              <td><span class="badge-red">35</span></td>
+              <td><span class="badge-red">35</span></td>
+              <td style="color: var(--red); font-weight: 700;">7 147 ms</td>
+              <td>TBT 3 516 ms</td>
+              <td>Белый экран со спиннером Loader2</td>
+            </tr>
+            <tr>
+              <td><strong>/security/time-records</strong></td>
+              <td>CRM / Табель</td>
+              <td><span class="badge-red">48</span></td>
+              <td><span class="badge-red">42</span></td>
+              <td style="color: var(--red); font-weight: 700;">3 454 – 10 167 ms</td>
+              <td>TBT 1 061 ms</td>
+              <td>Падение скорости в горячем режиме</td>
+            </tr>
+            <tr>
+              <td><strong>/security (Дашборд)</strong></td>
+              <td>CRM / Главная</td>
+              <td><span class="badge-red">75</span></td>
+              <td><span class="badge-red">68</span></td>
+              <td style="color: var(--red); font-weight: 700;">3 466 – 5 500 ms</td>
+              <td>TTFB 4 040 ms</td>
+              <td>HTML отдавался более 4 секунд</td>
+            </tr>
+            <tr>
+              <td><strong>/security/estimates/.../edit</strong></td>
+              <td>CRM / Сметы</td>
+              <td><span class="badge-red">67</span></td>
+              <td><span class="badge-red">75</span></td>
+              <td style="color: var(--red); font-weight: 700;">3 953 ms</td>
+              <td>CLS 0.2152</td>
+              <td>Скачок верстки при калькуляции</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Слайд 5: Архитектурный капкан №1 (Rate Limiter) -->
+    <div class="slide">
+      <div class="slide-subtitle">Глубокий анализ проблем</div>
+      <h2 class="slide-title">Капкан №1: Внешний Rate Limiter в Server-Side Rendering</h2>
+      <p class="slide-desc">
+        Казалось, что тормозит база данных или React. Настоящий виновник — синхронные проверки лимитов через внешний REST API Upstash Redis во время генерации HTML.
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color: var(--red); margin-bottom: 12px;">❌ Как было устроено (4.3 секунды оверхеда):</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            1. На странице дашборда <code>page.tsx</code> вызывалось 5 серверных экшенов.<br>
+            2. Каждый экшен вызывал <code>assertUserActionRateLimit</code>.<br>
+            3. Redis работал по <strong>внешнему REST API (~215 ms задержки)</strong>.<br>
+            4. Проверялись 2 ключа последовательно, и каждый делал <code>TTL</code> + <code>INCR</code> + <code>EXPIRE</code> последовательно!
+          </p>
+          <pre>5 экшенов × 4 сетевых запроса × 215 ms = 4 300 ms задержки!</pre>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--green); margin-bottom: 12px;">✔ Архитектурное решение (Split Rate Limiter):</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            1. <strong>Разделение на чтение и запись:</strong> Для всех SSR-чтений внедрен <code>mode: "read"</code>. Во время рендеринга страницы обращения к внешнему Upstash <strong>полностью исключены (0 ms оверхеда)</strong>.<br>
+            2. <strong>Защита мутаций:</strong> Все 226 мутаций (Write) защищены строгим лимитом через атомарный <strong>Lua-скрипт (1 вызов вместо 3)</strong>.<br>
+            3. <strong>Anti-Spoofing:</strong> Заголовок <code>x-action-rpc</code> генерируется только внутренним reverse proxy.
+          </p>
+          <div class="badge-green">Итог: SSR оверхед снижен с 4300 ms до 0 ms!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 6: Капкан №2 (N+1 в зарплатах) -->
+    <div class="slide">
+      <div class="slide-subtitle">Глубокий анализ проблем</div>
+      <h2 class="slide-title">Капкан №2: Водопад N+1 в расчете зарплат (16.8 секунд)</h2>
+      <p class="slide-desc">
+        Страница <code>/security/salary</code> висела более 16 секунд из-за последовательного расчета каждого сотрудника в цикле.
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color: var(--red); margin-bottom: 8px;">❌ БЫЛО: 100 последовательных запросов к БД</h3>
+          <pre>// page.tsx - последовательный перебор
+for (let i = 0; i < guards.length; i++) {
+  // На каждого охранника открывалась транзакция,
+  // выполнялся SELECT смен, расчет надбавок и штрафов
+  await calculateMonthlySalaryAction(guards[i].id);
+}
+// ИТОГ: 16 788 ms время рендера страницы!</pre>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--green); margin-bottom: 8px;">✔ СТАЛО: Пакетный SARGable SQL-запрос</h3>
+          <pre>// 1 пакетный запрос с диапазоном дат
+export async function getMonthlySalariesBatchAction(period) {
+  const existing = await salaryRepo.findManyByPeriod(period);
+  const timeRecords = await timeRecordRepo.findRange({
+    where: {
+      date: { gte: period.start, lt: period.end } // SARGable индекс
+    }
+  });
+  return computeBatch(guards, timeRecords, existing);
+}
+// ИТОГ: 869 ms (в 19 раз быстрее!)</pre>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        💡 <strong>Принцип:</strong> Никогда не делайте <code>await db.query()</code> внутри цикла в серверных компонентах. Группируйте идентификаторы в <code>WHERE id IN (...)</code> или пакетные интервалы дат.
+      </div>
+    </div>
+
+    <!-- Слайд 7: Клиентские капканы (TBT и LCP) -->
+    <div class="slide">
+      <div class="slide-subtitle">Клиентская оптимизация</div>
+      <h2 class="slide-title">Клиентские капканы: Каскадные таймеры и <code>opacity: 0</code></h2>
+      <p class="slide-desc">
+        Ошибки в использовании библиотек анимации (Framer Motion) блокировали процессор на 3.5 секунды и ломали LCP.
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div style="font-size: 16px; font-weight: 700; color: var(--red); margin-bottom: 8px;">1. Каскадные таймеры (TBT 3516 ms)</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            В списках сотрудников каждая строка рендерилась как:
+            <code>&lt;motion.tr transition={{ delay: index * 0.05 }} /&gt;</code>.
+            На 100 строках браузер создавал 100 JS-таймеров одновременно, полностью замораживая UI.
+          </p>
+          <div class="badge-green">Решение:</div> Убран Framer Motion с элементов списков таблицы, TBT упал с <strong>1042 ms до ~0 ms</strong>!
+        </div>
+
+        <div class="card">
+          <div style="font-size: 16px; font-weight: 700; color: var(--red); margin-bottom: 8px;">2. <code>initial={{ opacity: 0 }}</code> на LCP (Задержка 1-2 с)</div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            Заголовки Hero-секции <code>&lt;h1&gt;</code> были невидимы до окончания гидратации JS и завершения CSS-перехода.
+          </p>
+          <div class="badge-green">Решение:</div> Для элементов выше сгиба экрана (Above the Fold) убран начальный нулевой opacity. Заголовок виден мгновенно в сыром SSR HTML!
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <h3 style="color: var(--primary); margin-bottom: 6px;">3. Динамическая загрузка тяжелых библиотек (Recharts)</h3>
+        <p style="font-size: 13px; color: var(--text-muted);">
+          В модуле финансов библиотека графиков <code>recharts</code> весила ~200 KB и блокировала рендер. Вынесена в <code>next/dynamic(() =&gt; import(...), { ssr: false })</code> с отображением легковесного скелетона во время загрузки.
+        </p>
+      </div>
+    </div>
+
+    <!-- Слайд 8: Борьба со сдвигами верстки (CLS) -->
+    <div class="slide">
+      <div class="slide-subtitle">Стабильность интерфейса</div>
+      <h2 class="slide-title">Борьба с Layout Shift: Как достичь CLS = 0.0000</h2>
+      <p class="slide-desc">
+        Сдвиги разметки (CLS) раздражают пользователей и пессимизируются поисковиками. В Workdo было решено 2 ключевых источника сдвигов:
+      </p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color: #fff; margin-bottom: 10px;">1. Кириллический сабсет шрифта Inter</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            Шрифт <code>Inter</code> был подключен только с <code>subsets: ["latin"]</code>. Русский текст рендерился системным Arial, а затем принудительно перерисовывался браузером, сдвигая строки.
+          </p>
+          <pre>// layout.tsx
+const inter = Inter({
+  subsets: ["latin", "cyrillic"], // Добавлена кириллица
+  display: "swap"
+});</pre>
+        </div>
+
+        <div class="card">
+          <h3 style="color: #fff; margin-bottom: 10px;">2. Сметы: Резервирование высоты калькулятора</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+            На странице <code>/security/estimates/[id]/edit</code> блок расчета итогов сметы вызывал <strong>CLS 0.2152</strong> при загрузке данных.
+          </p>
+          <pre>// Зафиксирована минимальная высота и синхронизирован скелетон
+&lt;div className="min-h-[108px] rounded-lg border p-4"&gt;
+  {loading ? &lt;SkeletonTotals /&gt; : &lt;TotalsSummary /&gt;}
+&lt;/div&gt;
+// ИТОГ: CLS снижен с 0.2152 до 0.0000!</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 9: 9 Блоков Оптимизации -->
+    <div class="slide">
+      <div class="slide-subtitle">Системный подход</div>
+      <h2 class="slide-title">9 Блоков Оптимизации: Хроника трансформации</h2>
+
+      <div class="grid-3" style="font-size: 13px;">
+        <div class="card">
+          <strong style="color: var(--primary);">Блок 1–2: SSR & Parallel</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;"><code>Promise.allSettled</code> в <code>page.tsx</code>. Устранение дублирующего шрифта Inter из globals.css. Снятие <code>opacity: 0</code> с шапки.</p>
+        </div>
+        <div class="card">
+          <strong style="color: var(--primary);">Блок 3: Lua в Redis</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;">Сворачивание 3 сетевых вызовов Upstash в 1 атомарный EVAL скрипт. Параллельный <code>Promise.all</code> для ключей.</p>
+        </div>
+        <div class="card">
+          <strong style="color: var(--primary);">Блок 4–5: Split Rate Limiter</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;">100% разделение чтения (0ms на SSR) и мутаций (60/мин) во всех 3 вертикалях: Security, Beauty, Yacht.</p>
+        </div>
+        <div class="card">
+          <strong style="color: var(--primary);">Блок 6: Пакетный SQL & Preload</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;">Ликвидация N+1 в зарплатах (16.8с → 869ms). Прелоад форм редактирования на сервере без спиннеров.</p>
+        </div>
+        <div class="card">
+          <strong style="color: var(--primary);">Блок 7: Переход на Pure SSG</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;">35 публичных страниц переведены в <code>force-static</code>. Анимации фона перенесены на GPU Compositor.</p>
+        </div>
+        <div class="card">
+          <strong style="color: var(--primary);">Блок 8–9: Фиксация CLS</strong>
+          <p style="color: var(--text-muted); margin-top: 6px;">Синхронизация скелетонов и фиксация min-height в сметах. Полный аудит 83 страниц: 0 ошибок.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 10: Результаты (До и После) -->
+    <div class="slide">
+      <div class="slide-subtitle">Финальные итоги</div>
+      <h2 class="slide-title">Результаты: До и После (Полный аудит 83 страниц)</h2>
+
+      <div class="grid-2">
+        <div class="card card-highlight">
+          <h3 style="color: var(--red); margin-bottom: 16px;">❌ ИСХОДНОЕ СОСТОЯНИЕ (Базовая линия):</h3>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+            <span>Средний Performance:</span> <strong style="color: var(--red);">87 / 100</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+            <span>Средний LCP:</span> <strong style="color: var(--red);">1 772 ms</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+            <span>Худший LCP страницы:</span> <strong style="color: var(--red);">16 788 ms (16.8 с)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+            <span>Проблемных страниц (красная зона):</span> <strong style="color: var(--red);">18 страниц</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 15px;">
+            <span>Максимальный CLS:</span> <strong style="color: var(--red);">0.2152</strong>
+          </div>
+        </div>
+
+        <div class="card card-highlight" style="border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(16, 185, 129, 0.05) 0%, var(--card-bg) 100%);">
+          <h3 style="color: var(--green); margin-bottom: 16px;">✔ ФИНАЛЬНЫЙ РЕЗУЛЬТАТ (После 9 блоков):</h3>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+            <span>Средний Performance:</span> <strong style="color: var(--green);">100 / 100 (99.8%)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+            <span>Средний LCP:</span> <strong style="color: var(--green);">413 ms (−77%)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+            <span>Худший LCP страницы:</span> <strong style="color: var(--green);">649 ms</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px;">
+            <span>Проблемных страниц:</span> <strong style="color: var(--green);">0 страниц (100% зелёная зона)</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 15px;">
+            <span>Максимальный CLS:</span> <strong style="color: var(--green);">0.0000 во всех 83 маршрутах!</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 11: Сравнительная таблица ключевых экранов -->
+    <div class="slide">
+      <div class="slide-subtitle">Конкретные маршруты</div>
+      <h2 class="slide-title">Трансформация ключевых экранов Workdo</h2>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Страница</th>
+              <th>Perf Было</th>
+              <th>Perf Стало</th>
+              <th>LCP Было</th>
+              <th>LCP Стало</th>
+              <th>Ускорение</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Дашборд (/security)</strong></td>
+              <td><span class="badge-red">75</span></td>
+              <td><span class="badge-green">100</span></td>
+              <td>3 466 ms</td>
+              <td><strong style="color: var(--green);">632 ms</strong></td>
+              <td><strong>в 5.5 раз быстрее</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Зарплаты (/security/salary)</strong></td>
+              <td><span class="badge-red">47</span></td>
+              <td><span class="badge-green">99</span></td>
+              <td>16 788 ms</td>
+              <td><strong style="color: var(--green);">621 ms</strong></td>
+              <td><strong>в 27 раз быстрее</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Смены (/security/shifts)</strong></td>
+              <td><span class="badge-red">77</span></td>
+              <td><span class="badge-green">100</span></td>
+              <td>6 469 ms</td>
+              <td><strong style="color: var(--green);">225 ms</strong></td>
+              <td><strong>в 28 раз быстрее</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Табель (/security/time-records)</strong></td>
+              <td><span class="badge-red">42</span></td>
+              <td><span class="badge-green">100</span></td>
+              <td>10 167 ms</td>
+              <td><strong style="color: var(--green);">269 ms</strong></td>
+              <td><strong>в 37 раз быстрее</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Аудит-лог (/security/audit-log)</strong></td>
+              <td><span class="badge-red">70</span></td>
+              <td><span class="badge-green">100</span></td>
+              <td>5 358 ms</td>
+              <td><strong style="color: var(--green);">624 ms</strong></td>
+              <td><strong>в 8.5 раз быстрее</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Регистрация (/register)</strong></td>
+              <td><span class="badge-red">89</span></td>
+              <td><span class="badge-green">100</span></td>
+              <td>1 841 ms</td>
+              <td><strong style="color: var(--green);">384 ms</strong></td>
+              <td><strong>в 4.8 раз быстрее</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Слайд 12: Золотой чеклист для разработчика -->
+    <div class="slide">
+      <div class="slide-subtitle">Руководство к действию</div>
+      <h2 class="slide-title">Золотой чеклист оптимизации любого сайта</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <strong style="color: var(--primary); font-size: 16px;">1. Backend & Server Components (SSR)</strong>
+          <ul style="font-size: 13px; line-height: 1.8; color: var(--text-muted); margin-top: 10px; padding-left: 20px;">
+            <li>Параллельте независимые запросы данных через <code>Promise.allSettled</code>.</li>
+            <li>Никаких внешних HTTP-обращений (rate-limiter, аналитика) во время рендеринга страницы.</li>
+            <li>Избавляйтесь от N+1 через пакетные SQL-запросы с <code>WHERE IN (...)</code>.</li>
+            <li>Публичные страницы переводите в Static Site Generation (<code>force-static</code>).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <strong style="color: var(--primary); font-size: 16px;">2. Frontend & Клиентский код</strong>
+          <ul style="font-size: 13px; line-height: 1.8; color: var(--text-muted); margin-top: 10px; padding-left: 20px;">
+            <li>Снимайте <code>opacity: 0</code> с элементов первого экрана выше сгиба (LCP).</li>
+            <li>Не используйте каскадные таймеры (<code>delay: i * 0.05</code>) на строках списков.</li>
+            <li>Выносите тяжелые графики и редакторы в динамические импорты (<code>dynamic()</code>).</li>
+            <li>Резервируйте <code>min-height</code> для предотвращения сдвигов (CLS = 0).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Слайд 13: Как запустить софт у себя -->
+    <div class="slide">
+      <div class="slide-subtitle">Инструментарий</div>
+      <h2 class="slide-title">Как запустить созданный PageSpeed Toolkit</h2>
+      <p class="slide-desc">
+        Созданный софт в папке <code>F:\Download\TPO\metrics</code> готов к запуску прямо сейчас без сложной настройки:
+      </p>
+
+      <div class="card" style="font-size: 14px;">
+        <strong style="color: var(--green);">1. Быстрый аудит любого сайта через терминал:</strong>
+        <pre># Аудит любого сайта (Cold + Hot, Desktop + Mobile)
+node bin/psi-audit.mjs --url https://vash-sait.ru
+
+# Только мобильный аудит
+node bin/psi-audit.mjs --url https://vash-sait.ru --device mobile
+
+# Пакетный аудит нескольких страниц из config.json
+node bin/psi-audit.mjs --config config.json --open</pre>
+
+        <strong style="color: var(--green); margin-top: 16px; display: block;">2. Замер серверного SSR-стриминга (TTFB):</strong>
+        <pre>node bin/ssr-check.mjs https://vash-sait.ru</pre>
+
+        <strong style="color: var(--green); margin-top: 16px; display: block;">3. Что генерирует утилита:</strong>
+        <p style="color: var(--text-muted); margin-top: 6px;">
+          * Консольную цветную сводку и таблицу сравнения Cold vs Hot.<br>
+          * Подробный отчет Markdown (<code>reports/audit_...md</code>).<br>
+          * Красивый интерактивный HTML-дашборд с круговыми диаграммами (<code>reports/latest-report.html</code>).
+        </p>
+      </div>
+    </div>
+
+    <!-- Слайд 14: Заключение -->
+    <div class="slide">
+      <div class="slide-subtitle">Финал</div>
+      <h1 class="slide-title" style="font-size: 42px;">
+        100/100 в PageSpeed — это не магия, а инженерная дисциплина
+      </h1>
+      <p class="slide-desc" style="font-size: 18px;">
+        Оптимизация производительности — это не просто «поджать картинки». Это грамотная архитектура данных, параллелизация запросов, отсутствие блокировок в SSR и уважение к главному потоку браузера пользователя.
+      </p>
+
+      <div class="card card-highlight" style="margin-top: 20px; text-align: center; padding: 30px;">
+        <div style="font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 12px;">
+          Инструмент, инструкция и кейс Workdo сохранены в:
+        </div>
+        <code style="font-size: 16px; color: var(--primary); background: #070a13; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--card-border);">
+          F:\Download\TPO\metrics
+        </code>
+        <div style="margin-top: 24px;">
+          <button class="btn btn-primary" onclick="goToSlide(0)">Начать просмотр сначала ↺</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    document.getElementById('totalSlidesNum').innerText = totalSlides;
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+      document.getElementById('currentSlideNum').innerText = currentSlide + 1;
+      const progress = ((currentSlide + 1) / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+      
+      document.getElementById('prevBtn').disabled = currentSlide === 0;
+      document.getElementById('nextBtn').innerText = currentSlide === totalSlides - 1 ? 'Готово ✔' : 'Вперед ▶';
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      currentSlide = Math.max(0, Math.min(totalSlides - 1, index));
+      updateSlide();
+    }
+
+    // Управление с клавиатуры
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        goToSlide(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        goToSlide(totalSlides - 1);
+      } else if (e.key === 'f' || e.key === 'F') {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      }
+    });
+
+    updateSlide();
+  </script>
+</body>
+</html>

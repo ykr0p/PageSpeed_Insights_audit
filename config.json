@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Конфигурация пакетного аудита PageSpeed Insights API и локального раннера",
+  "apiKey": "",
+  "devices": ["desktop", "mobile"],
+  "modes": ["cold", "hot"],
+  "repeats": {
+    "cold": 1,
+    "hot": 2
+  },
+  "categories": [
+    "performance",
+    "accessibility",
+    "best-practices",
+    "seo"
+  ],
+  "locale": "ru",
+  "outputDir": "./reports",
+  "generateHtmlReport": true,
+  "generateMarkdownReport": true,
+  "generateJsonReport": true,
+  "thresholds": {
+    "performance": 90,
+    "lcpMs": 2500,
+    "cls": 0.1,
+    "tbtMs": 200,
+    "fcpMs": 1800,
+    "ttfbMs": 800
+  },
+  "targets": [
+    {
+      "name": "Web.dev (Google Developers)",
+      "url": "https://web.dev",
+      "tier": "public"
+    },
+    {
+      "name": "GitHub Home",
+      "url": "https://github.com",
+      "tier": "public"
+    }
+  ]
+}

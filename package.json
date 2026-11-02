@@ -1,0 +1,44 @@
+{
+  "name": "pagespeed-metrics-toolkit",
+  "version": "1.0.0",
+  "description": "Автономный инструмент аудита метрик производительности и Core Web Vitals через PageSpeed Insights API и локальный Lighthouse с поддержкой Cold и Hot запусков",
+  "type": "module",
+  "bin": {
+    "psi-audit": "./bin/psi-audit.mjs",
+    "ssr-check": "./bin/ssr-check.mjs"
+  },
+  "scripts": {
+    "start": "node bin/psi-audit.mjs",
+    "psi": "node bin/psi-audit.mjs",
+    "psi:cold": "node bin/psi-audit.mjs --mode cold",
+    "psi:hot": "node bin/psi-audit.mjs --mode hot",
+    "psi:both": "node bin/psi-audit.mjs --mode both",
+    "psi:mobile": "node bin/psi-audit.mjs --device mobile",
+    "psi:desktop": "node bin/psi-audit.mjs --device desktop",
+    "psi:batch": "node bin/psi-audit.mjs --config config.json",
+    "ssr": "node bin/ssr-check.mjs",
+    "local": "node bin/psi-audit.mjs --local",
+    "presentation": "node -e \"import('node:child_process').then(cp => cp.exec(process.platform === 'win32' ? 'start PRESENTATION.html' : process.platform === 'darwin' ? 'open PRESENTATION.html' : 'xdg-open PRESENTATION.html'))\""
+  },
+  "keywords": [
+    "pagespeed",
+    "lighthouse",
+    "core-web-vitals",
+    "performance",
+    "lcp",
+    "cls",
+    "tbt",
+    "cold-run",
+    "hot-run",
+    "audit"
+  ],
+  "author": "Workdo Engineering / Perf Audit Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0",
+    "playwright-lighthouse": "^4.0.0"
+  }
+}

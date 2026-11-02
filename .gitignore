@@ -1,0 +1,41 @@
+# Секреты и переменные окружения (защита API-ключа)
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# Зависимости Node.js
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.temp
+.lighthouseci/
+
+# Артефакты тестов и браузеров
+test-results/
+playwright-report/
+.cache/
+
+# Сгенерированные отчеты аудитов (сохраняя эталонный demo-отчет)
+reports/audit_*
+reports/latest-report.html
+!reports/demo-workdo-report.html
+!reports/.gitkeep
+
+# Системные файлы ОС и редакторов
+test.txt
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
