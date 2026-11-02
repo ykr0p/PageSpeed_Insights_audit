@@ -139,8 +139,9 @@ node bin/psi-audit.mjs --url http://localhost:3000 --local --open
   * Как проект был выведен из красной зоны (18 медленных страниц, LCP до 16.8 с) в **100% зеленую зону** со средним Performance **100** и LCP **413 ms**.
   * Разбор реальных серверных и клиентских капканов: сетевой водопад Upstash Redis в SSR, N+1 в расчете зарплат, каскадные таймеры Framer Motion, `opacity: 0` на заголовках первого экрана, сдвиги верстки шрифтов (CLS 0.21).
   * 9 этапов внедрения архитектурных решений (Split Rate Limiter, SARGable SQL, Pure SSG, dynamic imports).
+* **[`case-study/COMPARISON_83_ROUTES.md`](case-study/COMPARISON_83_ROUTES.md)** — сводная сквозная таблица сравнения **ДО vs ПОСЛЕ по всем 83 страницам** (с дельтой LCP, изменением Performance и Топ-10 ускорений).
 * **[`case-study/PERF_REPORT.md`](case-study/PERF_REPORT.md)** — оригинальный полный отчёт Workdo на 577 строк с замерами всех 83 роутов До и После каждого из 9 блоков оптимизации.
-* **[`case-study/data/`](case-study/data/)** — исходные сырые JSONL-датасеты (`cold-83-routes.jsonl`, `hot-83-routes.jsonl`) для исследовательской работы и сравнительного анализа в лабораторных.
+* **[`case-study/data/`](case-study/data/)** — исходные сырые JSONL-датасеты (`before-cold-83-routes.jsonl`, `after-cold-83-routes.jsonl` и др.) для исследовательской работы и сравнительного анализа в лабораторных.
 
 ---
 
