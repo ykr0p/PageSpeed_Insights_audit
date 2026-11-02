@@ -11,6 +11,39 @@ import path from "node:path";
 
 export class LocalRunner {
   /**
+   * Найти исполняемый файл браузера Chromium (Chrome / Edge)
+   * Позволяет запускать аудит на любом компьютере, даже если Chrome не установлен (использует системный Edge).
+   */
+  static findBrowserPath() {
+    if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) {
+      return process.env.CHROME_PATH;
+    }
+    const candidates = [
+      // Chrome (Windows)
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+      process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Google", "Chrome", "Application", "chrome.exe") : null,
+      // Edge (установлен по умолчанию на 100% ПК с Windows 10/11)
+      "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+      "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+      process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, "Microsoft", "Edge", "Application", "msedge.exe") : null,
+      // macOS
+      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+      // Linux
+      "/usr/bin/google-chrome",
+      "/usr/bin/chromium-browser",
+      "/usr/bin/chromium",
+      "/usr/bin/microsoft-edge",
+    ].filter(Boolean);
+
+    for (const c of candidates) {
+      if (fs.existsSync(c)) return c;
+    }
+    return null;
+  }
+
+  /**
    * Выполнить локальный аудит через Lighthouse
    * @param {Object} params
    * @param {string} params.url URL для анализа
@@ -26,11 +59,18 @@ export class LocalRunner {
       `lh_audit_${Date.now()}_${Math.random().toString(36).slice(2, 6)}.json`
     );
 
+    const browserPath = this.findBrowserPath();
+    const env = { ...process.env };
+    if (browserPath && !env.CHROME_PATH) {
+      env.CHROME_PATH = browserPath;
+    }
+
     const args = [
+      "--yes",
       "lighthouse",
-      url,
+      `"${url}"`,
       "--output=json",
-      `--output-path=${tmpJsonPath}`,
+      `--output-path="${tmpJsonPath}"`,
       "--chrome-flags=--headless=new --no-sandbox --disable-dev-shm-usage",
       "--quiet",
     ];
@@ -46,16 +86,28 @@ export class LocalRunner {
 
     try {
       await new Promise((resolve, reject) => {
+        let stderr = "";
         const proc = spawn("npx", args, {
-          shell: process.platform === "win32",
-          stdio: "ignore",
+          shell: true,
+          env,
+          stdio: ["ignore", "ignore", "pipe"],
+        });
+
+        proc.stderr?.on("data", (chunk) => {
+          stderr += chunk.toString();
         });
 
         proc.on("close", (code) => {
           if (code === 0 && fs.existsSync(tmpJsonPath)) {
             resolve();
           } else {
-            reject(new Error(`Lighthouse завершился с кодом ошибки: ${code}`));
+            const cleanErr = stderr
+              .split("\n")
+              .filter((l) => l.trim() && !l.includes("DEP0190") && !l.includes("trace-deprecation"))
+              .slice(-3)
+              .join(" ")
+              .trim();
+            reject(new Error(`Lighthouse завершился с кодом ошибки: ${code}${cleanErr ? ` (${cleanErr})` : ""}`));
           }
         });
 
