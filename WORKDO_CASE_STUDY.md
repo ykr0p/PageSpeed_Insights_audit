@@ -2,7 +2,8 @@
 
 > **Реальный кейс масштабной оптимизации мультиарендной B2B SaaS платформы (Workdo)**  
 > **Стек проекта:** Next.js (App Router, Server Components), Prisma ORM, Kysely, PostgreSQL, Upstash Redis, Tailwind CSS, Framer Motion.  
-> **Результат:** 100% страниц в зеленой зоне Core Web Vitals, средний Lighthouse Performance вырос до **100**, средний LCP сократился с **1821 ms до 413 ms**, 0 медленных страниц из 83.
+> **Результат:** 100% страниц в зеленой зоне Core Web Vitals, средний Lighthouse Performance вырос до **100**, средний LCP сократился с **1821 ms до 413 ms**, 0 медленных страниц из 83.  
+> **Полный детальный отчёт по блокам:** [`case-study/PERF_REPORT.md`](case-study/PERF_REPORT.md) | **Датасеты замеров:** [`case-study/data/`](case-study/data/)
 
 ---
 
