@@ -18,10 +18,6 @@ pnpm-debug.log*
 *.tmp
 *.temp
 .lighthouseci/
-
-# Артефакты тестов и браузеров
-test-results/
-playwright-report/
 .cache/
 
 # Сгенерированные отчеты аудитов (сохраняя эталонный demo-отчет)
@@ -31,7 +27,6 @@ reports/latest-report.html
 !reports/.gitkeep
 
 # Системные файлы ОС и редакторов
-test.txt
 .DS_Store
 Thumbs.db
 desktop.ini

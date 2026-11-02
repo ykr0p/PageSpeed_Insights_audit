@@ -57,7 +57,7 @@ function printHelp() {
   --key <apiKey>       Ключ Google PageSpeed API (опционально)
   --config <файл>      Путь к конфигурационному файлу JSON (например, config.json)
   --out <папка>        Папка для сохранения отчетов (по умолчанию: ./reports)
-  --local              Использовать локальный Lighthouse (Playwright/CDP) вместо облачного API
+  --local              Использовать локальный Lighthouse CLI вместо облачного API
   --open               Автоматически открыть HTML-отчет в браузере после завершения
   --help, -h           Показать эту справку
 
