@@ -133,6 +133,8 @@ node bin/psi-audit.mjs --url http://localhost:3000 --local --open
   * Как проект был выведен из красной зоны (18 медленных страниц, LCP до 16.8 с) в **100% зеленую зону** со средним Performance **100** и LCP **413 ms**.
   * Разбор реальных серверных и клиентских капканов: сетевой водопад Upstash Redis в SSR, N+1 в расчете зарплат, каскадные таймеры Framer Motion, `opacity: 0` на заголовках первого экрана, сдвиги верстки шрифтов (CLS 0.21).
   * 9 этапов внедрения архитектурных решений (Split Rate Limiter, SARGable SQL, Pure SSG, dynamic imports).
+* **[`case-study/WORKDO_FULL_AUDIT_REPORT.md`](case-study/WORKDO_FULL_AUDIT_REPORT.md)** — полный детальный отчёт на 577 строк с замерами всех 83 роутов До и После каждого блока оптимизации.
+* **[`case-study/data/`](case-study/data/)** — исходные сырые JSONL-датасеты (`cold-83-routes.jsonl`, `hot-83-routes.jsonl`) для исследовательской работы и сравнительного анализа в лабораторных.
 
 ---
 
