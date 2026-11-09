@@ -65,9 +65,16 @@ export class LocalRunner {
       env.CHROME_PATH = browserPath;
     }
 
-    const args = [
-      "--yes",
-      "lighthouse",
+    const localBin = path.join(
+      process.cwd(),
+      "node_modules",
+      ".bin",
+      process.platform === "win32" ? "lighthouse.cmd" : "lighthouse"
+    );
+    const hasLocalBin = fs.existsSync(localBin);
+    const execCmd = hasLocalBin ? `"${localBin}"` : "npx";
+
+    const commonFlags = [
       `"${url}"`,
       "--output=json",
       `--output-path="${tmpJsonPath}"`,
@@ -76,18 +83,20 @@ export class LocalRunner {
     ];
 
     if (device === "desktop") {
-      args.push("--preset=desktop");
+      commonFlags.push("--preset=desktop");
     }
 
     // Для горячего запуска не сбрасываем кэш браузера
     if (mode === "hot") {
-      args.push("--disable-storage-reset");
+      commonFlags.push("--disable-storage-reset");
     }
+
+    const args = hasLocalBin ? commonFlags : ["--yes", "lighthouse", ...commonFlags];
 
     try {
       await new Promise((resolve, reject) => {
         let stderr = "";
-        const proc = spawn("npx", args, {
+        const proc = spawn(execCmd, args, {
           shell: true,
           env,
           stdio: ["ignore", "ignore", "pipe"],

@@ -13,6 +13,7 @@ import { Reporter } from "../src/reporter.mjs";
 import { HtmlReporter } from "../src/html-reporter.mjs";
 import { generateRecommendations } from "../src/recommendations.mjs";
 import { SitemapParser } from "../src/sitemap.mjs";
+import { PreflightChecker } from "../src/preflight.mjs";
 
 // Автоматическая загрузка настроек из .env
 function loadEnv() {
@@ -208,19 +209,32 @@ async function main() {
   // Интерактивный диалог, если URL не передан через аргументы
   if (targetUrls.length === 0 && !args.sitemapUrl) {
     if (process.stdin.isTTY) {
-      const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
       console.log("\n========================================================");
       console.log("       PageSpeed Insights & Lighthouse Toolkit");
       console.log("========================================================\n");
 
-      const inputUrl = await rl.question("1. Введите URL сайта или страницы (Enter = https://workdo.ru): ");
+      // Экспресс-самодиагностика окружения
+      const diag = await PreflightChecker.check({
+        apiKey: args.apiKey,
+        outDir: args.outDir,
+      });
+      PreflightChecker.printStatus(diag);
+
+      const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+      const inputUrl = await rl.question("\n1. Введите URL сайта или страницы (Enter = https://workdo.ru): ");
       const cleanUrl = normalizeUrl(inputUrl) || "https://workdo.ru";
       targetUrls.push(cleanUrl);
 
       console.log("\n2. Режим аудита:");
-      console.log("   [1] Локальный Lighthouse (Рекомендуется: без 429 лимитов, как в Workdo)");
-      console.log("   [2] Облачный Google PageSpeed Insights API");
-      console.log("   [3] ВСЕ страницы сайта (автоматически через sitemap.xml)");
+      if (diag.googleOnline) {
+        console.log("   [1] Локальный Lighthouse (Рекомендуется: без 429 лимитов, как в Workdo)");
+        console.log("   [2] Облачный Google PageSpeed Insights API");
+        console.log("   [3] ВСЕ страницы сайта (автоматически через sitemap.xml)");
+      } else {
+        console.log("   [1] Локальный Lighthouse (Рекомендуется: сеть Google API недоступна на этом ПК)");
+        console.log("   [2] Облачный Google PageSpeed Insights API (может выдать таймаут)");
+        console.log("   [3] ВСЕ страницы сайта (автоматически через sitemap.xml)");
+      }
       const choice = await rl.question("Выберите режим [1, 2 или 3, по умолчанию 1]: ");
 
       if (choice.trim() === "2") {

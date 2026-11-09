@@ -1,14 +1,20 @@
-# Быстрый старт за 2 минуты (PageSpeed Metrics Toolkit)
+# Быстрый старт за 1 минуту (PageSpeed Metrics Toolkit)
 
-## 1. Запуск без установки (чистый Node.js)
+## 1. Запуск в 1 клик на любом ПК (Windows / macOS / Linux)
 
-Откройте командную строку (cmd или PowerShell) и перейдите в папку:
+1. Скачайте или склонируйте проект:
+   ```bash
+   git clone https://github.com/ykr0p/PageSpeed_Insights_audit.git
+   cd PageSpeed_Insights_audit
+   ```
+2. Запустите:
+   - **На Windows:** дважды кликните по **`run.bat`** (софт сам проверит систему, найдет Chrome/Edge и откроет отчет).
+   - **На macOS / Linux:** `./run.sh`
+3. *(Опционально)* Для полной предварительной установки перед работой без интернета запустите **`setup.bat`** (или `./setup.sh`).
 
-```bash
-cd F:\Download\TPO\metrics
-```
+---
 
-### Запустить аудит своего сайта:
+## 2. Запуск через командную строку (CLI)
 ```bash
 node bin/psi-audit.mjs --url https://vash-sait.ru
 ```
