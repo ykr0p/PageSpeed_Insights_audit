@@ -106,6 +106,11 @@ export class PreflightChecker {
       console.log(`  \x1b[33m[!]\x1b[0m Браузер Chromium не найден по стандартным путям.`);
     }
 
+    // Локальный движок
+    if (diag.hasLocalLighthouse) {
+      console.log(`  \x1b[32m[✓]\x1b[0m Движок: \x1b[36mЛокальный Lighthouse готов\x1b[0m (автономный режим)`);
+    }
+
     // Сеть и Google API
     if (diag.googleOnline) {
       if (diag.hasApiKey) {

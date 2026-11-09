@@ -4,6 +4,14 @@ cd /d "%~dp0"
 where node >nul 2>nul
 if errorlevel 1 goto :no_node
 
+if not exist "node_modules\.bin\lighthouse.cmd" (
+    echo ========================================================
+    echo   First launch: installing Lighthouse into project...
+    echo ========================================================
+    call npm install --no-audit --no-fund
+    echo.
+)
+
 node --no-deprecation bin\psi-audit.mjs %*
 goto :end
 

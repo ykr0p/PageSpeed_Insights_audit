@@ -7,13 +7,18 @@ if ! command -v node >/dev/null 2>&1; then
     echo "  [ОШИБКА] Node.js не найден в системе!"
     echo "========================================================"
     echo "Для работы утилиты требуется Node.js версии 18+."
-    echo "Установите Node.js:"
-    echo "  - macOS: brew install node"
-    echo "  - Ubuntu/Debian: sudo apt update && sudo apt install nodejs npm"
-    echo "  - Или скачайте с официального сайта: https://nodejs.org/"
+    echo "Установите Node.js с официального сайта: https://nodejs.org/"
     echo "========================================================"
     echo ""
     exit 1
+fi
+
+if [ ! -f "node_modules/.bin/lighthouse" ]; then
+    echo "========================================================"
+    echo "  Первый запуск: подготовка локального движка Lighthouse..."
+    echo "========================================================"
+    npm install --no-audit --no-fund
+    echo ""
 fi
 
 node --no-deprecation bin/psi-audit.mjs "$@"
