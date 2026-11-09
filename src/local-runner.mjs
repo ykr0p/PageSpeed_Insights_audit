@@ -4,7 +4,7 @@
  * не имеет никаких лимитов 429 и не требует API-ключей Google Cloud.
  */
 
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -99,7 +99,7 @@ export class LocalRunner {
     }, 2500);
 
     try {
-      await new Promise((resolve, reject) => {
+      const retryResult = await new Promise((resolve, reject) => {
         let stderr = "";
         const proc = spawn(execCmd, args, {
           shell: true,
@@ -111,11 +111,11 @@ export class LocalRunner {
           stderr += chunk.toString();
         });
 
-        proc.on("close", (code) => {
+        proc.on("close", async (code) => {
           clearInterval(progressTimer);
           process.stdout.write("\n");
           if (code === 0 && fs.existsSync(tmpJsonPath)) {
-            resolve();
+            resolve(null);
           } else {
             const cleanErr = stderr
               .split("\n")
@@ -123,6 +123,21 @@ export class LocalRunner {
               .slice(-3)
               .join(" ")
               .trim();
+
+            // Автоматическое лечение повреждения кэша npm (ECOMPROMISED)
+            if (execCmd === "npx" && (stderr.includes("ECOMPROMISED") || stderr.includes("Lock compromised"))) {
+              console.log("\x1b[33m[!]\x1b[0m Обнаружена блокировка глобального кэша npm (ECOMPROMISED).");
+              console.log("\x1b[32m▶ Автоматическая установка Lighthouse в локальную папку проекта (npm install)...\x1b[0m");
+              try {
+                spawnSync("npm", ["install", "--no-audit", "--no-fund"], { shell: true, stdio: "inherit" });
+                if (fs.existsSync(localBin)) {
+                  console.log("\x1b[32m[✓]\x1b[0m Локальный Lighthouse успешно установлен! Перезапуск замера...\x1b[0m");
+                  const retryRes = await LocalRunner.runAudit(params);
+                  return resolve(retryRes);
+                }
+              } catch {}
+            }
+
             reject(new Error(`Lighthouse завершился с кодом ошибки: ${code}${cleanErr ? ` (${cleanErr})` : ""}`));
           }
         });
@@ -133,6 +148,10 @@ export class LocalRunner {
           reject(err);
         });
       });
+
+      if (retryResult) {
+        return retryResult;
+      }
 
       const rawJson = fs.readFileSync(tmpJsonPath, "utf8");
       const lhr = JSON.parse(rawJson);
