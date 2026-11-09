@@ -13,11 +13,15 @@ if ! command -v node >/dev/null 2>&1; then
     exit 1
 fi
 
-if [ ! -f "node_modules/.bin/lighthouse" ]; then
+if [ ! -f "node_modules/.bin/lighthouse" ] && [ ! -f ".offline_engine" ]; then
     echo "========================================================"
-    echo "  Первый запуск: подготовка локального движка Lighthouse..."
+    echo "  Первый запуск: проверка компонентов..."
     echo "========================================================"
-    npm install --no-audit --no-fund
+    if ! npm install --no-audit --no-fund --fetch-timeout=3000 --fetch-retries=0 >/dev/null 2>&1; then
+        echo "  [OK] npm registry недоступен (прокси / офлайн)."
+        echo "  [OK] Используется встроенный Chromium CDP движок (работает без интернета)."
+        echo "offline" > ".offline_engine"
+    fi
     echo ""
 fi
 

@@ -8,6 +8,7 @@ import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { ChromiumCdpRunner } from "./chromium-cdp.mjs";
 
 export class LocalRunner {
   /**
@@ -72,6 +73,18 @@ export class LocalRunner {
       process.platform === "win32" ? "lighthouse.cmd" : "lighthouse"
     );
     const hasLocalBin = fs.existsSync(localBin);
+
+    // Если локальный пакет Lighthouse не установлен (например, в учебной сети без доступа к npmjs),
+    // мгновенно запускаем встроенный Chromium CDP движок без ожидания npx и без сетевых ошибок.
+    if (!hasLocalBin) {
+      process.stdout.write("  \x1b[2mВыполняется автономный замер через Chromium CDP (~3-6 сек)...\x1b[0m\n");
+      try {
+        return await ChromiumCdpRunner.runAudit(params);
+      } catch (cdpErr) {
+        console.warn(`\x1b[33m[!]\x1b[0m Сбой CDP движка: ${cdpErr.message}. Попытка запуска через npx...`);
+      }
+    }
+
     const execCmd = hasLocalBin ? `"${localBin}"` : "npx";
 
     const commonFlags = [
@@ -167,7 +180,13 @@ export class LocalRunner {
           fs.unlinkSync(tmpJsonPath);
         } catch {}
       }
-      throw err;
+      console.log(`\x1b[33m[!]\x1b[0m Сбой Lighthouse CLI: ${err.message}`);
+      console.log(`\x1b[32m▶ Автоматическое резервное переключение на встроенный Chromium CDP движок...\x1b[0m`);
+      try {
+        return await ChromiumCdpRunner.runAudit(params);
+      } catch (cdpErr) {
+        throw new Error(`${err.message} (Резервный CDP: ${cdpErr.message})`);
+      }
     }
   }
 

@@ -17,6 +17,7 @@ pnpm-debug.log*
 *.log
 *.tmp
 *.temp
+.offline_engine
 .lighthouseci/
 .cache/
 

@@ -275,7 +275,13 @@ async function main() {
   const devices = args.device === "both" ? ["desktop", "mobile"] : [args.device];
   const modes = args.mode === "both" ? ["cold", "hot"] : [args.mode];
 
-  const engineName = args.local ? "Локальный Lighthouse 13.5 (без лимитов и задержек)" : "Облачный Google PageSpeed API";
+  const hasLocalLh = fs.existsSync(
+    path.join(process.cwd(), "node_modules", ".bin", process.platform === "win32" ? "lighthouse.cmd" : "lighthouse")
+  );
+  const localEngineTitle = hasLocalLh
+    ? "Локальный Lighthouse 13.5 (без лимитов и задержек)"
+    : "Встроенный Chromium CDP (автономно без интернета)";
+  const engineName = args.local ? localEngineTitle : "Облачный Google PageSpeed API";
   console.log(`\n\x1b[1mЗапуск аудита производительности...\x1b[0m`);
   console.log(`Движок: \x1b[36m${engineName}\x1b[0m | Страниц: ${targetUrls.length} | Устройства: ${devices.join(", ")} | Режимы: ${modes.join(", ")}`);
 

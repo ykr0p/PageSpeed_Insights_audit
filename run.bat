@@ -5,11 +5,18 @@ where node >nul 2>nul
 if errorlevel 1 goto :no_node
 
 if not exist "node_modules\.bin\lighthouse.cmd" (
-    echo ========================================================
-    echo   First launch: installing Lighthouse into project...
-    echo ========================================================
-    call npm install --no-audit --no-fund
-    echo.
+    if not exist ".offline_engine" (
+        echo ========================================================
+        echo   First launch: checking components...
+        echo ========================================================
+        call npm install --no-audit --no-fund --fetch-timeout=3000 --fetch-retries=0 >nul 2>nul
+        if errorlevel 1 (
+            echo   [OK] npm registry is unreachable (proxy/offline).
+            echo   [OK] Using Built-in Chromium CDP Engine (works 100%% offline).
+            echo offline > ".offline_engine"
+        )
+        echo.
+    )
 )
 
 node --no-deprecation bin\psi-audit.mjs %*

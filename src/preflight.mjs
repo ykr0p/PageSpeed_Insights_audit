@@ -109,6 +109,8 @@ export class PreflightChecker {
     // Локальный движок
     if (diag.hasLocalLighthouse) {
       console.log(`  \x1b[32m[✓]\x1b[0m Движок: \x1b[36mЛокальный Lighthouse готов\x1b[0m (автономный режим)`);
+    } else {
+      console.log(`  \x1b[32m[✓]\x1b[0m Движок: \x1b[36mВстроенный Chromium CDP\x1b[0m (автономно без интернета)`);
     }
 
     // Сеть и Google API
