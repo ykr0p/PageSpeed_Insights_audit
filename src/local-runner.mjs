@@ -60,7 +60,7 @@ export class LocalRunner {
     );
 
     const browserPath = this.findBrowserPath();
-    const env = { ...process.env };
+    const env = { ...process.env, NODE_NO_WARNINGS: "1" };
     if (browserPath && !env.CHROME_PATH) {
       env.CHROME_PATH = browserPath;
     }
@@ -93,6 +93,11 @@ export class LocalRunner {
 
     const args = hasLocalBin ? commonFlags : ["--yes", "lighthouse", ...commonFlags];
 
+    process.stdout.write("  \x1b[2mВыполняется замер в браузере (~20-35 сек)...\x1b[0m ");
+    const progressTimer = setInterval(() => {
+      process.stdout.write("\x1b[36m.\x1b[0m");
+    }, 2500);
+
     try {
       await new Promise((resolve, reject) => {
         let stderr = "";
@@ -107,6 +112,8 @@ export class LocalRunner {
         });
 
         proc.on("close", (code) => {
+          clearInterval(progressTimer);
+          process.stdout.write("\n");
           if (code === 0 && fs.existsSync(tmpJsonPath)) {
             resolve();
           } else {
@@ -120,7 +127,11 @@ export class LocalRunner {
           }
         });
 
-        proc.on("error", (err) => reject(err));
+        proc.on("error", (err) => {
+          clearInterval(progressTimer);
+          process.stdout.write("\n");
+          reject(err);
+        });
       });
 
       const rawJson = fs.readFileSync(tmpJsonPath, "utf8");

@@ -4,7 +4,7 @@ cd /d "%~dp0"
 where node >nul 2>nul
 if errorlevel 1 goto :no_node
 
-node bin\psi-audit.mjs %*
+node --no-deprecation bin\psi-audit.mjs %*
 goto :end
 
 :no_node
