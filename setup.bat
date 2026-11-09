@@ -1,26 +1,35 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
 
 echo ========================================================
-echo   PageSpeed & Lighthouse Toolkit - Автонастройка
+echo   PageSpeed and Lighthouse Toolkit - Auto Setup
 echo ========================================================
-echo Проверка Node.js и npm...
+echo Checking Node.js and npm...
 
 where node >nul 2>nul
-if %errorlevel% neq 0 (
-    echo [!] Node.js не найден! Пожалуйста, скачайте его с https://nodejs.org/
-    pause
-    exit /b 1
-)
+if errorlevel 1 goto :no_node
 
-echo [✓] Node.js обнаружен.
-echo Установка локального движка Lighthouse для 100%% автономной работы...
+echo [OK] Node.js found.
+echo Installing Lighthouse for offline use...
 call npm install
 echo.
 echo ========================================================
-echo   [✓] Все компоненты успешно настроены!
-echo   Теперь запустите run.bat для начала аудита.
+echo   [OK] Setup complete! You can now run run.bat.
 echo ========================================================
 echo.
 pause
+goto :eof
+
+:no_node
+echo.
+echo ========================================================
+echo   [ERROR] Node.js is not found on this computer!
+echo ========================================================
+echo   Please install Node.js:
+echo   Download: https://nodejs.org/
+echo.
+echo   After installing Node.js, run this file again.
+echo ========================================================
+echo.
+pause
+exit /b 1

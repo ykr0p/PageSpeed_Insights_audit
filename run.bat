@@ -1,28 +1,26 @@
 @echo off
-chcp 65001 >nul
 cd /d "%~dp0"
 
 where node >nul 2>nul
-if %errorlevel% neq 0 (
-    echo.
-    echo ========================================================
-    echo   [ОШИБКА] Node.js не найден на этом компьютере!
-    echo ========================================================
-    echo Для работы утилиты требуется среда выполнения Node.js (v18+).
-    echo.
-    echo 1. Скачайте официальный установщик Node.js LTS:
-    echo    https://nodejs.org/
-    echo 2. Установите Node.js и снова запустите run.bat.
-    echo ========================================================
-    echo.
-    pause
-    exit /b 1
-)
+if errorlevel 1 goto :no_node
 
 node bin\psi-audit.mjs %*
-if %errorlevel% neq 0 (
-    echo.
-    echo [ERROR] Audit finished with error.
-)
+goto :end
+
+:no_node
+echo.
+echo ========================================================
+echo   [ERROR] Node.js is not found on this computer!
+echo ========================================================
+echo   Please install Node.js:
+echo   Download: https://nodejs.org/
+echo.
+echo   After installing Node.js, run this file again.
+echo ========================================================
+echo.
+pause
+exit /b 1
+
+:end
 echo.
 pause
